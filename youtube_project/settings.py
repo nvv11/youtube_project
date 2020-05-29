@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'youtube',
     'debug_toolbar',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -56,7 +57,7 @@ ROOT_URLCONF = 'youtube_project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['youtube'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
