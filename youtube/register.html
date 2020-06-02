@@ -1,0 +1,15 @@
+{% extends "parent.html" %}
+
+{% block title %}
+    Create a new Account
+{% endblock %}
+
+{% block body %}
+<h1>Create z25_Youtube Account</h1><br>
+
+<form action="register" method="POST">
+    {% csrf_token %}
+    {{ form }}
+    <br><input type="submit" value="Create Account!">
+</form>
+{% endblock %}
