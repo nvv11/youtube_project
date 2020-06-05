@@ -1,0 +1,21 @@
+{% extends "parent.html" %}
+
+{% block title %}
+    Home
+{% endblock %}
+
+{% block body %}
+<h1>Welcome to z25_Youtube!</h1><br>
+<h2>Most recent videos:</h2>
+<br>
+
+{% for video in most_recent_videos %}
+<div style="width:50%; border-color:black; border-width:1px; border-style:solid;">
+<h6>{{ video.title }}</h6>
+    <p style="font-size: 7px; color:gray;">Uploaded by {{ video.user }} on {{ video.datetime }} </p>
+    <p> {{ video.description }} </p>
+    <p style="text-align: right"><a href='/video/{{ video.id }}'>Watch Video</a></p>
+</div>
+{% endfor %}
+
+{% endblock %}

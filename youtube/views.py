@@ -3,14 +3,18 @@ from django.views.generic.base import View, HttpResponse, HttpResponseRedirect
 from youtube.forms import LoginForm, RegisterForm, NewVideoForm
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
+from youtube.models import Video
+import string
+import random
 
 
 class HomeView(View):
     template_name = 'index.html'
 
     def get(self, request):
-        variableA = 'Index'
-        return render(request, self.template_name, {'menu_active_item': 'home'})
+        most_recent_videos = Video.objects.order_by('-datetime')[:8]
+        return render(request, self.template_name, {'menu_active_item': 'home',
+                                                    'most_recent_videos': most_recent_videos})
 
 
 class LoginView(View):
@@ -18,7 +22,7 @@ class LoginView(View):
 
     def get(self, request):
         if request.user.is_authenticated:
-            print('Already Logged In. Redirecting')
+            print('Already Logged In. Redirecting.')
             print(request.user)
             return HttpResponseRedirect('/')
         form = LoginForm()
@@ -36,7 +40,7 @@ class LoginView(View):
                 return HttpResponseRedirect('/')
             else:
                 return HttpResponseRedirect('/login')
-        return HttpResponse('This is Login view. POST Request')
+        return HttpResponse('This is Login view. POST Request.')
 
 
 class RegisterView(View):
@@ -44,7 +48,7 @@ class RegisterView(View):
 
     def get(self, request):
         if request.user.is_authenticated:
-            print('Already Logged In. Redirecting')
+            print('Already Logged In. Redirecting.')
             print(request.user)
             return HttpResponseRedirect('/')
         form = RegisterForm()
@@ -60,16 +64,32 @@ class RegisterView(View):
             new_user.set_password(password)
             new_user.save()
             return HttpResponseRedirect('/login')
-        return HttpResponse('This is Register view. POST Request')
+        return HttpResponse('This is Register view. POST Request.')
 
 
 class NewVideo(View):
     template_name = 'new_video.html'
 
     def get(self, request):
-        variableA = 'New Video'
+        if not request.user.is_authenticated:
+            return HttpResponseRedirect('/login')
+
         form = NewVideoForm()
-        return render(request, self.template_name, {'variableA': variableA, 'form': form})
+        return render(request, self.template_name, {'form': form})
 
     def post(self, request):
-        return HttpResponse('This is Index view. POST Request.')
+        form = NewVideoForm(request.POST, request.FILES)
+        if form.is_valid():
+            title = form.cleaned_data['title']
+            description = form.cleaned_data['description']
+            file = form.cleaned_data['file']
+            random_char = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
+            path = random_char + file.name
+            new_video = Video(title=title,
+                              description=description,
+                              user=request.user,
+                              path=path)
+            new_video.save()
+            return HttpResponseRedirect('/video/{}'.format(new_video.id))
+        else:
+            return HttpResponse('Form is not valid. Try again.')

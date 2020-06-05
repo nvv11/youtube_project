@@ -8,7 +8,7 @@ Upload Video
 This is NewVideo View.<br>
 This is a GET Request. <br>
 
-<form action="new_video" method="POST">
+<form action="new_video" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
 <table>
 {{ form.as_table }}
