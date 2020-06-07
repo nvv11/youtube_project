@@ -1,9 +1,9 @@
 from django.shortcuts import render
 from django.views.generic.base import View, HttpResponse, HttpResponseRedirect
-from youtube.forms import LoginForm, RegisterForm, NewVideoForm
+from youtube.forms import LoginForm, RegisterForm, NewVideoForm, CommentForm
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
-from youtube.models import Video
+from youtube.models import Video, Comment
 import string
 import random
 
@@ -15,6 +15,18 @@ class HomeView(View):
         most_recent_videos = Video.objects.order_by('-datetime')[:8]
         return render(request, self.template_name, {'menu_active_item': 'home',
                                                     'most_recent_videos': most_recent_videos})
+
+
+class VideoView(View):
+    template_name = 'video.html'
+
+    def get(self, request, id):
+        video_by_id = Video.objects.get(id=id)
+        context = {'video': video_by_id}
+        if request.user.is_authenticated:
+            comment_form = CommentForm()
+            context['form'] = comment_form
+        return render(request, self.template_name, context)
 
 
 class LoginView(View):
@@ -41,6 +53,21 @@ class LoginView(View):
             else:
                 return HttpResponseRedirect('/login')
         return HttpResponse('This is Login view. POST Request.')
+
+
+class CommentView(View):
+    template_name = 'comment.html'
+
+    def post(self, request):
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            text = form.cleaned_data['text']
+            video_id = request.POST['video']
+            video = Video.objects.get(id=video_id)
+            new_comment = Comment(text=text, user=request.user, video=video)
+            new_comment.save()
+            return HttpResponseRedirect('/video/{}'.format(str(video_id)))
+        return HttpResponseRedirect('/login')
 
 
 class RegisterView(View):
