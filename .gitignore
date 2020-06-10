@@ -5,7 +5,7 @@ __pycache__/
 
 # C extensions
 *.so
-static/*
+youtube/static/*
 videos/*
 
 # Distribution / packaging
@@ -134,3 +134,4 @@ example.py
 
 # Files
 .mp4
+Procfile

@@ -13,6 +13,8 @@ urlpatterns = [
     path('comment', CommentView.as_view()),
     path('videos/<file_name>', VideoFileView.as_view()),
     path('logout', LogoutView.as_view()),
+    path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    path('api/', include('youtube_api.urls')),
 ]
 
 if settings.DEBUG:

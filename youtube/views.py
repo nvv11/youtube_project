@@ -42,7 +42,7 @@ class VideoView(View):
 
     def get(self, request, id):
         video_by_id = Video.objects.get(id=id)
-        video_by_id.path = 'http://localhost:8000/videos/' + video_by_id.path
+        video_by_id.path = VIDEOS_URL + video_by_id.path
         context = {'video': video_by_id}
 
         if request.user.is_authenticated:
