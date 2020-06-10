@@ -6,6 +6,18 @@ from django.contrib.auth import authenticate, login, logout
 from youtube.models import Video, Comment
 import string
 import random
+from django.core.files.storage import FileSystemStorage
+from wsgiref.util import FileWrapper
+from youtube_project.settings import VIDEOS_URL
+
+
+class VideoFileView(View):
+
+    def get(self, request, file_name):
+        file = FileWrapper(open('/videos/'+file_name, 'rb'))
+        response = HttpResponse(file, content_type='video/mp4')
+        response['Content-Disposition'] = 'attachment; filename={}'.format(file_name)
+        return response
 
 
 class HomeView(View):
@@ -17,15 +29,28 @@ class HomeView(View):
                                                     'most_recent_videos': most_recent_videos})
 
 
+class LogoutView(View):
+
+    def get(self, request):
+        logout(request)
+        return HttpResponseRedirect('/')
+
+
 class VideoView(View):
     template_name = 'video.html'
 
     def get(self, request, id):
         video_by_id = Video.objects.get(id=id)
+        print(video_by_id.path)
+        video_by_id.path = '/videos/'+video_by_id.path
         context = {'video': video_by_id}
+
         if request.user.is_authenticated:
             comment_form = CommentForm()
             context['form'] = comment_form
+
+        comments = Comment.objects.filter(video__id=id).order_by('-datetime')[:5]
+        context['comments'] = comments
         return render(request, self.template_name, context)
 
 
@@ -112,6 +137,9 @@ class NewVideo(View):
             file = form.cleaned_data['file']
             random_char = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
             path = random_char + file.name
+            fs = FileSystemStorage(location=VIDEOS_URL)
+            filename = fs.save(path, file)
+            fs.url(filename)
             new_video = Video(title=title,
                               description=description,
                               user=request.user,

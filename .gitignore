@@ -6,7 +6,7 @@ __pycache__/
 # C extensions
 *.so
 static/*
-media/*
+videos/*
 
 # Distribution / packaging
 .Python
@@ -131,3 +131,6 @@ dmypy.json
 .pyre/
 .idea/*
 example.py
+
+# Files
+.mp4
