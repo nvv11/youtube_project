@@ -13,7 +13,7 @@
 
     </head>
     <body>
-        <center>
+        <div class="container">
 
         <ul class="nav nav-tabs">
             <li class="nav-item">
@@ -37,9 +37,10 @@
             {% endif %}
         </ul>
         <br>
-        <div class="container-fluid">
-        {% block body %}
-        {% endblock %}
+            <div class="container-fluid">
+            {% block body %}
+            {% endblock %}
+            </div>
         </div>
 
         </center>

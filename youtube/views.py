@@ -14,7 +14,8 @@ from youtube_project.settings import VIDEOS_URL
 class VideoFileView(View):
 
     def get(self, request, file_name):
-        file = FileWrapper(open('/videos/'+file_name, 'rb'))
+        file = FileWrapper(open(VIDEOS_URL+'/'+file_name, 'rb'))
+        print(VIDEOS_URL+'/'+file_name)
         response = HttpResponse(file, content_type='video/mp4')
         response['Content-Disposition'] = 'attachment; filename={}'.format(file_name)
         return response
@@ -41,8 +42,7 @@ class VideoView(View):
 
     def get(self, request, id):
         video_by_id = Video.objects.get(id=id)
-        print(video_by_id.path)
-        video_by_id.path = '/videos/'+video_by_id.path
+        video_by_id.path = 'http://localhost:8000/videos/' + video_by_id.path
         context = {'video': video_by_id}
 
         if request.user.is_authenticated:
