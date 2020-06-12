@@ -9,7 +9,7 @@ Upload Video
 <form action="new_video" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
 <table>
-{{ form.as_table }}
+{{ form.as_p }}
 <tr>
     <td></td>
     <td>
