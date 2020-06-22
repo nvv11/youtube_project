@@ -124,6 +124,8 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 VIDEOS_URL = '/videos/'
+VIDEOS_NUMBER = 8
+COMMENTS_NUMBER = 5
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',

@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect, reverse
 from django.views.generic.base import View, HttpResponse, HttpResponseRedirect
 from youtube.forms import LoginForm, RegisterForm, NewVideoForm, CommentForm
 from django.contrib.auth.models import User
@@ -8,14 +8,13 @@ import string
 import random
 from django.core.files.storage import FileSystemStorage
 from wsgiref.util import FileWrapper
-from youtube_project.settings import VIDEOS_URL
+from youtube_project.settings import VIDEOS_URL, VIDEOS_NUMBER, COMMENTS_NUMBER
 
 
 class VideoFileView(View):
 
     def get(self, request, file_name):
         file = FileWrapper(open(VIDEOS_URL+'/'+file_name, 'rb'))
-        print(VIDEOS_URL+'/'+file_name)
         response = HttpResponse(file, content_type='video/mp4')
         response['Content-Disposition'] = 'attachment; filename={}'.format(file_name)
         return response
@@ -25,7 +24,7 @@ class HomeView(View):
     template_name = 'index.html'
 
     def get(self, request):
-        most_recent_videos = Video.objects.order_by('-datetime')[:8]
+        most_recent_videos = Video.objects.order_by('-datetime')[:VIDEOS_NUMBER]
         return render(request, self.template_name, {'menu_active_item': 'home',
                                                     'most_recent_videos': most_recent_videos})
 
@@ -48,8 +47,7 @@ class VideoView(View):
         if request.user.is_authenticated:
             comment_form = CommentForm()
             context['form'] = comment_form
-
-        comments = Comment.objects.filter(video__id=id).order_by('-datetime')[:5]
+        comments = Comment.objects.filter(video__id=id).order_by('-datetime')[:COMMENTS_NUMBER]
         context['comments'] = comments
         return render(request, self.template_name, context)
 
@@ -59,8 +57,6 @@ class LoginView(View):
 
     def get(self, request):
         if request.user.is_authenticated:
-            print('Already Logged In. Redirecting.')
-            print(request.user)
             return HttpResponseRedirect('/')
         form = LoginForm()
         return render(request, self.template_name, {'form': form})
@@ -73,7 +69,6 @@ class LoginView(View):
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
-                print('Successful Login')
                 return HttpResponseRedirect('/')
             else:
                 return HttpResponseRedirect('/login')
@@ -91,7 +86,7 @@ class CommentView(View):
             video = Video.objects.get(id=video_id)
             new_comment = Comment(text=text, user=request.user, video=video)
             new_comment.save()
-            return HttpResponseRedirect('/video/{}'.format(str(video_id)))
+            return redirect(reverse('/video/{}', args=(video_id, )))
         return HttpResponseRedirect('/login')
 
 
@@ -100,8 +95,6 @@ class RegisterView(View):
 
     def get(self, request):
         if request.user.is_authenticated:
-            print('Already Logged In. Redirecting.')
-            print(request.user)
             return HttpResponseRedirect('/')
         form = RegisterForm()
         return render(request, self.template_name, {'form': form})
